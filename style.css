@@ -22,7 +22,7 @@
 body {
     background-color: var(--bg-dark);
     color: var(--text-main);
-    overflow: hidden; 
+    overflow: hidden;
     height: 100vh;
 }
 
@@ -39,9 +39,17 @@ body {
 }
 
 @keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* خلفية المثلثات والليزارات */
@@ -53,35 +61,247 @@ body {
     z-index: -1;
 }
 
-.t1 { width: 150px; height: 130px; top: 10%; left: 5%; animation-duration: 25s; }
-.t2 { width: 100px; height: 90px; top: 60%; left: 80%; animation-duration: 30s; opacity: 0.6; }
-.t3 { width: 200px; height: 180px; top: 40%; left: 30%; animation-duration: 35s; opacity: 0.4; }
+.t1 {
+    width: 150px;
+    height: 130px;
+    top: 10%;
+    left: 5%;
+    animation-duration: 25s;
+}
+
+.t2 {
+    width: 100px;
+    height: 90px;
+    top: 60%;
+    left: 80%;
+    animation-duration: 30s;
+    opacity: 0.6;
+}
+
+.t3 {
+    width: 200px;
+    height: 180px;
+    top: 40%;
+    left: 30%;
+    animation-duration: 35s;
+    opacity: 0.4;
+}
+
+.t4 {
+    width: 120px;
+    height: 100px;
+    top: 80%;
+    left: 20%;
+    animation-duration: 22s;
+    opacity: 0.3;
+}
+
+.t5 {
+    width: 180px;
+    height: 150px;
+    top: 5%;
+    left: 60%;
+    animation-duration: 40s;
+    opacity: 0.5;
+}
 
 .laser {
     position: absolute;
     background: linear-gradient(90deg, transparent, #0e05b9, transparent);
     height: 2px;
-    width: 300px;
+    width: 400px;
     filter: blur(1px);
-    box-shadow: 0 0 10px #0e05b9;
-    animation: laserMove 15s linear infinite;
+    box-shadow: 0 0 15px #0e05b9;
+    animation: laserMove 12s linear infinite;
     z-index: -1;
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
-.l1 { top: 20%; left: -300px; transform: rotate(15deg); }
-.l2 { top: 70%; right: -300px; transform: rotate(-15deg); animation-delay: 5s; }
-.l3 { top: 45%; left: -300px; transform: rotate(5deg); animation-delay: 10s; }
+.l1 {
+    top: 20%;
+    left: -400px;
+    transform: rotate(15deg);
+}
+
+.l2 {
+    top: 70%;
+    right: -400px;
+    transform: rotate(-15deg);
+    animation-delay: 5s;
+}
+
+.l3 {
+    top: 45%;
+    left: -400px;
+    transform: rotate(5deg);
+    animation-delay: 10s;
+}
+
+.l4 {
+    top: 10%;
+    left: -400px;
+    transform: rotate(-25deg);
+    animation-delay: 2s;
+}
+
+.l5 {
+    top: 85%;
+    left: -400px;
+    transform: rotate(10deg);
+    animation-delay: 7s;
+}
+
+
+/* نظام البخار (Steam/Smoke Effect) */
+.steam-container {
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.steam {
+    position: absolute;
+    bottom: -100px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: url(#steam-filter);
+    opacity: 0;
+    /* التوقيت: 4 ثواني ضخ سريع، ثم ضخ خفيف جداً للأبد */
+    animation:
+        steamBurst 4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards,
+        steamFaint 15s linear infinite 4s;
+}
+
+.s1 {
+    left: 5%;
+    width: 300px;
+    height: 300px;
+    animation-delay: 0s;
+}
+
+.s2 {
+    left: 20%;
+    width: 400px;
+    height: 400px;
+    animation-delay: 0.5s;
+}
+
+.s3 {
+    left: 40%;
+    width: 350px;
+    height: 350px;
+    animation-delay: 1s;
+}
+
+.s4 {
+    left: 60%;
+    width: 450px;
+    height: 450px;
+    animation-delay: 0.2s;
+}
+
+.s5 {
+    left: 80%;
+    width: 320px;
+    height: 320px;
+    animation-delay: 0.7s;
+}
+
+.s6 {
+    left: 15%;
+    width: 280px;
+    height: 280px;
+    animation-delay: 1.2s;
+}
+
+.s7 {
+    left: 50%;
+    width: 420px;
+    height: 420px;
+    animation-delay: 1.5s;
+}
+
+.s8 {
+    left: 85%;
+    width: 380px;
+    height: 380px;
+    animation-delay: 0.3s;
+}
+
+/* أنيميشن الضخ السريع (أول 4 ثواني) */
+@keyframes steamBurst {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(-800px) scale(2);
+        opacity: 0;
+    }
+}
+
+/* أنيميشن الضخ الخفيف (بعد الـ 4 ثواني) */
+@keyframes steamFaint {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.15;
+    }
+
+    100% {
+        transform: translateY(-600px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+
+@keyframes sparkFly {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-400px) translateX(50px);
+        opacity: 0;
+    }
+}
 
 @keyframes float {
-    0% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-40px) rotate(180deg); }
-    100% { transform: translateY(0) rotate(360deg); }
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-60px) rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: translateY(0) rotate(360deg) scale(1);
+    }
 }
 
 @keyframes laserMove {
-    0% { left: -400px; }
-    100% { left: 110%; }
+    0% {
+        left: -500px;
+    }
+
+    100% {
+        left: 120%;
+    }
 }
 
 .app-layout {
@@ -103,7 +323,8 @@ body {
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* يوزع العناصر: أعلى، وسط، أسفل */
+    justify-content: space-between;
+    /* يوزع العناصر: أعلى، وسط، أسفل */
     padding: 30px 20px;
     z-index: 10;
 }
@@ -143,7 +364,8 @@ body {
 
 .profile-info span {
     font-size: 0.85rem;
-    color: #414141; /* لون اليوزر كما تم طلبه */
+    color: #414141;
+    /* لون اليوزر كما تم طلبه */
     font-weight: 700;
 }
 
@@ -154,7 +376,7 @@ body {
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 0 15px 3px #0e05b9;
-    border: 2px solid rgba(255,255,255,0.05);
+    border: 2px solid rgba(255, 255, 255, 0.05);
 }
 
 #dcAvatar {
@@ -171,22 +393,28 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(
-        -45deg,
-        transparent 0%,
-        transparent 40%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 60%,
-        transparent 100%
-    );
+    background: linear-gradient(-45deg,
+            transparent 0%,
+            transparent 40%,
+            rgba(255, 255, 255, 0.4) 50%,
+            transparent 60%,
+            transparent 100%);
     transform: rotate(0deg);
     animation: avatarShine 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes avatarShine {
-    0% { transform: translate(70%, 70%) rotate(0deg); }
-    20% { transform: translate(-70%, -70%) rotate(0deg); }
-    100% { transform: translate(-70%, -70%) rotate(0deg); }
+    0% {
+        transform: translate(70%, 70%) rotate(0deg);
+    }
+
+    20% {
+        transform: translate(-70%, -70%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-70%, -70%) rotate(0deg);
+    }
 }
 
 .sidebar-nav {
@@ -258,7 +486,8 @@ body {
     text-decoration: none;
     color: var(--text-main);
     border: 1px solid var(--border-color);
-    width: 50px; /* الحجم الابتدائي ليكون مربع أيقونة فقط */
+    width: 50px;
+    /* الحجم الابتدائي ليكون مربع أيقونة فقط */
     height: 50px;
     overflow: hidden;
     white-space: nowrap;
@@ -273,7 +502,8 @@ body {
 
 .social-username {
     opacity: 0;
-    margin-right: 15px; /* مسافة بين الأيقونة والاسم (في نظام RTL) */
+    margin-right: 15px;
+    /* مسافة بين الأيقونة والاسم (في نظام RTL) */
     font-weight: 600;
     transition: opacity 0.3s ease;
 }
@@ -287,7 +517,8 @@ body {
 
 .social-btn-expand:hover .social-username {
     opacity: 1;
-    transition-delay: 0.1s; /* تأخير بسيط حتى يتمدد الزر */
+    transition-delay: 0.1s;
+    /* تأخير بسيط حتى يتمدد الزر */
 }
 
 .social-btn-expand.instagram:hover {
@@ -304,7 +535,7 @@ body {
 /* المحتوى الرئيسي */
 .main-content {
     flex: 1;
-    margin-left: 280px; 
+    margin-left: 280px;
     padding: 40px;
     display: flex;
     justify-content: center;
@@ -321,7 +552,20 @@ body {
     padding: 50px;
     width: 100%;
     max-width: 750px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(14, 5, 185, 0.1);
+    animation: panelEntry 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes panelEntry {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .header-content {
@@ -414,7 +658,9 @@ input[type="url"]:focus {
     font-weight: 500;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 .loader-container {
     display: flex;
@@ -427,17 +673,26 @@ input[type="url"]:focus {
 .modern-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(255,255,255,0.1);
+    border: 3px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     border-top-color: var(--primary);
     animation: spin 1s ease-in-out infinite;
 }
 
-.downloading { border-top-color: var(--accent); }
+.downloading {
+    border-top-color: var(--accent);
+}
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-.loader-text { color: var(--text-muted); font-size: 0.95rem; }
+.loader-text {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
 
 .result-card {
     background: rgba(0, 0, 0, 0.2);
@@ -450,8 +705,15 @@ input[type="url"]:focus {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .thumb-box {
@@ -475,14 +737,14 @@ input[type="url"]:focus {
     left: 0;
     width: 100%;
     height: 50%;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
 }
 
 .duration-badge {
     position: absolute;
     bottom: 8px;
     left: 8px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     padding: 4px 8px;
     border-radius: 6px;
@@ -503,6 +765,7 @@ input[type="url"]:focus {
     color: #fff;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -521,8 +784,9 @@ input[type="url"]:focus {
 
 .action-btn.video {
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .action-btn.video:hover {
     background: var(--primary);
     border-color: var(--primary);
@@ -530,15 +794,19 @@ input[type="url"]:focus {
 
 .action-btn.audio {
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .action-btn.audio:hover {
     background: var(--accent);
     border-color: var(--accent);
 }
 
 @media (max-width: 900px) {
-    .app-layout { flex-direction: column; }
+    .app-layout {
+        flex-direction: column;
+    }
+
     .sidebar {
         position: relative;
         width: 100%;
@@ -548,15 +816,56 @@ input[type="url"]:focus {
         padding: 15px 20px;
         justify-content: space-between;
     }
-    .sidebar-top { flex-direction: row; gap: 15px; align-items: center; }
-    .sidebar-brand { margin: 0; }
-    .sidebar-nav { flex-direction: row; overflow-x: auto; }
-    .nav-item span, .social-username { display: none !important; }
-    .social-links-vertical { flex-direction: row; }
-    .social-btn-expand:hover { width: 50px; transform: translateY(-6px); }
-    .main-content { margin-left: 0; padding: 20px; align-items: flex-start; }
-    .search-section { flex-direction: column; }
-    .primary-btn { padding: 18px; }
-    .result-card { flex-direction: column; }
-    .thumb-box { width: 100%; height: 180px; }
+
+    .sidebar-top {
+        flex-direction: row;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .sidebar-brand {
+        margin: 0;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .nav-item span,
+    .social-username {
+        display: none !important;
+    }
+
+    .social-links-vertical {
+        flex-direction: row;
+    }
+
+    .social-btn-expand:hover {
+        width: 50px;
+        transform: translateY(-6px);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+        align-items: flex-start;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+
+    .primary-btn {
+        padding: 18px;
+    }
+
+    .result-card {
+        flex-direction: column;
+    }
+
+    .thumb-box {
+        width: 100%;
+        height: 180px;
+    }
 }
