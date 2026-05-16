@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const navItems = document.querySelectorAll('.nav-item');
+    const mainPanel = document.getElementById('mainPanel');
+    const homeView = document.getElementById('homeView');
+    const downloaderView = document.getElementById('downloaderView');
+
     const pageTitle = document.getElementById('pageTitle');
     const pageSubtitle = document.getElementById('pageSubtitle');
     const urlInput = document.getElementById('urlInput');
@@ -20,13 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentView = 'home';
     let currentUrl = '';
 
-    // Views Configuration
     const viewsData = {
-        home: {
-            title: 'اكتشف أسهل طريقة للتحميل',
-            subtitle: 'ضع الرابط هنا وسنتكفل بالباقي، بدون علامات مائية وبأعلى جودة.',
-            placeholder: 'أدخل الرابط هنا (يوتيوب، تيك توك، سناب شات...)'
-        },
+        home: {},
         video: {
             title: 'تحميل الفيديوهات بأعلى جودة',
             subtitle: 'احصل على مقاطع الفيديو المفضلة لديك بصيغة MP4 خالية من العلامات المائية.',
@@ -46,23 +45,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const newView = item.getAttribute('data-view');
             if (newView === currentView) return;
 
-            const mainPanel = document.getElementById('mainPanel');
-            
             // Start transition
             mainPanel.classList.add('view-transition');
             mainPanel.classList.remove('view-visible');
 
             setTimeout(() => {
-                // Remove active class
                 navItems.forEach(nav => nav.classList.remove('active'));
-                // Add active class
                 item.classList.add('active');
 
-                // Change view
                 currentView = newView;
-                updateViewUI();
 
-                // Reset state
+                // Switch Content
+                if (currentView === 'home') {
+                    homeView.classList.remove('hidden');
+                    downloaderView.classList.add('hidden');
+                } else {
+                    homeView.classList.add('hidden');
+                    downloaderView.classList.remove('hidden');
+                    updateDownloaderUI();
+                }
+
                 resetUI();
 
                 // End transition
@@ -72,8 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    function updateViewUI() {
+    function updateDownloaderUI() {
         const data = viewsData[currentView];
+        if (!data) return;
         pageTitle.textContent = data.title;
         pageSubtitle.textContent = data.subtitle;
         urlInput.placeholder = data.placeholder;
@@ -95,56 +98,36 @@ document.addEventListener('DOMContentLoaded', () => {
         resultCard.classList.add('hidden');
     }
 
-    // Generate Buttons based on view
     function renderActionButtons() {
-        actionButtonsContainer.innerHTML = ''; // clear
-
+        actionButtonsContainer.innerHTML = '';
         const btnVideo = `<button onclick="window.startDownload('video')" class="btn action-btn video"><i class="fa-solid fa-video"></i> تحميل كفيديو (MP4)</button>`;
         const btnAudio = `<button onclick="window.startDownload('audio')" class="btn action-btn audio"><i class="fa-solid fa-music"></i> تحميل كصوت (MP3)</button>`;
 
-        if (currentView === 'home') {
-            actionButtonsContainer.innerHTML = btnVideo + btnAudio;
-        } else if (currentView === 'video') {
+        if (currentView === 'video') {
             actionButtonsContainer.innerHTML = btnVideo;
         } else if (currentView === 'audio') {
             actionButtonsContainer.innerHTML = btnAudio;
+        } else {
+            actionButtonsContainer.innerHTML = btnVideo + btnAudio;
         }
     }
 
-    // Global function to be called from inline html buttons
     window.startDownload = (type) => {
         if (!currentUrl) return;
-
         resultCard.classList.add('hidden');
         downloadLoader.classList.remove('hidden');
-
-        const downloadUrl = `/api/download?url=${encodeURIComponent(currentUrl)}&type=${type}`;
-
-        // Trigger browser download
-        window.location.href = downloadUrl;
-
-        // Reset UI after delay
+        window.location.href = `/api/download?url=${encodeURIComponent(currentUrl)}&type=${type}`;
         setTimeout(() => {
             downloadLoader.classList.add('hidden');
             resultCard.classList.remove('hidden');
         }, 3500);
     };
 
-    // Fetch Logic
     fetchBtn.addEventListener('click', async () => {
         const url = urlInput.value.trim();
+        if (!url) return showError('لم تقم بإدخال أي رابط!');
 
-        if (!url) {
-            showError('لم تقم بإدخال أي رابط!');
-            return;
-        }
-
-        try {
-            new URL(url);
-        } catch (_) {
-            showError('يبدو أن الرابط غير صحيح، تأكد من نسخه بالكامل.');
-            return;
-        }
+        try { new URL(url); } catch (_) { return showError('الرابط غير صحيح.'); }
 
         currentUrl = url;
         errorMessage.classList.add('hidden');
@@ -155,55 +138,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`/api/info?url=${encodeURIComponent(url)}`);
             const data = await response.json();
 
-            if (!response.ok) {
-                // If the server sent details, show them in console for the developer
-                if (data.details) console.error('Full Server Error:', data.details);
-                throw new Error(data.error || 'خطأ في معالجة الرابط');
-            }
+            if (!response.ok) throw new Error(data.error || 'خطأ في معالجة الرابط');
 
             videoThumb.src = data.thumbnail;
             videoTitle.textContent = data.title;
             videoDuration.textContent = data.duration;
-
             renderActionButtons();
 
             loader.classList.add('hidden');
             resultCard.classList.remove('hidden');
-
         } catch (error) {
-            console.error('Fetch Error:', error);
-            showError(error.message || 'حدث خطأ غير متوقع أثناء الاتصال بالسيرفر.');
+            showError(error.message);
         }
     });
 
-    urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') fetchBtn.click();
-    });
+    urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchBtn.click(); });
 
-    // ----------------------------------------
-    // نظام جلب صورة واسم الديسكورد الخاص بك
-    // ----------------------------------------
     const MY_DISCORD_ID = '1265586255832547350';
-
     async function loadDiscordProfile() {
         try {
-            // Fetching directly from the external API instead of our local /api
-            // This ensures it works even if the local server isn't reachable (like on static hosts)
             const res = await fetch(`https://discord-lookup-api.vercel.app/v1/user/${MY_DISCORD_ID}`);
             if (!res.ok) return;
             const data = await res.json();
-
             if (data && data.username) {
-                document.getElementById('dcGlobalName').textContent = data.global_name || data.username;
+                const name = data.global_name || data.username;
+                document.getElementById('dcGlobalName').textContent = name;
                 document.getElementById('dcUsername').textContent = '@' + data.username;
+
+                // Update home page too
+                const homeAvatar = document.getElementById('homeAvatar');
                 if (data.avatar && data.avatar.link) {
-                    document.getElementById('dcAvatar').src = data.avatar.link + '?size=256';
+                    const avatarUrl = data.avatar.link + '?size=256';
+                    document.getElementById('dcAvatar').src = avatarUrl;
+                    if (homeAvatar) homeAvatar.src = avatarUrl;
                 }
             }
-        } catch (e) {
-            console.error('حدث خطأ أثناء جلب البروفايل', e);
-        }
+        } catch (e) { console.error('Discord fetch failed', e); }
     }
-
     loadDiscordProfile();
 });
