@@ -9,9 +9,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+// Serves static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Endpoint for Discord Profile
+// Endpoint for Discord Profile (Keep for reference/local use)
 app.get('/api/discord-user/:id', async (req, res) => {
     try {
         const response = await fetch(`https://discord-lookup-api.vercel.app/v1/user/${req.params.id}`);
@@ -102,17 +103,15 @@ app.get('/api/download', async (req, res) => {
             noCheckCertificates: true
         };
 
-        // If it's tiktok, yt-dlp usually fetches the watermark-free by default
-        
         await youtubedl(url, options);
 
         const downloadedFile = path.join(downloadsDir, `${uniqueId}.${expectedFileExt}`);
-        
+
         if (fs.existsSync(downloadedFile)) {
             const finalFilename = `${safeTitle}.${expectedFileExt}`;
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(finalFilename)}"`);
             res.setHeader('Content-Type', contentType);
-            
+
             res.download(downloadedFile, finalFilename, (err) => {
                 if (err) {
                     console.error('Error sending file to user:', err);

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moady | أداة التحميل الشاملة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="animated-bg">
+        <div class="triangle t1"></div>
+        <div class="triangle t2"></div>
+        <div class="triangle t3"></div>
+        <div class="laser l1"></div>
+        <div class="laser l2"></div>
+        <div class="laser l3"></div>
+    </div>
+
+    <div class="app-layout">
+
+        <!-- القائمة الجانبية (على الشمال) -->
+        <aside class="sidebar">
+
+            <!-- الجزء العلوي: اللوجو والقائمة الرئيسية -->
+            <div class="sidebar-top">
+                <div class="sidebar-brand discord-profile" id="discordProfile">
+                    <div class="profile-info">
+                        <h2 id="dcGlobalName">جاري التحميل...</h2>
+                        <span id="dcUsername">@loading</span>
+                    </div>
+                    <div class="avatar-wrapper">
+                        <img id="dcAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Discord Avatar">
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-view="home">
+                        <i class="fa-solid fa-house"></i>
+                        <span>الصفحة الرئيسية</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- الجزء الأوسط: باقي القوائم (في المنتصف تماماً) -->
+            <nav class="sidebar-nav center-nav">
+                <a href="#" class="nav-item" data-view="video">
+                    <i class="fa-solid fa-film"></i>
+                    <span>تحميل فيديوهات</span>
+                </a>
+                <a href="#" class="nav-item" data-view="audio">
+                    <i class="fa-solid fa-headphones"></i>
+                    <span>تحويل فيديو لصوت</span>
+                </a>
+            </nav>
+
+            <!-- الجزء السفلي: أزرار التواصل بشكل عمودي مع أنيميشن التمدد -->
+            <div class="sidebar-footer">
+                <div class="social-links-vertical">
+                    <!-- يمكنك تغيير الرابط في href لروابطك الحقيقية -->
+                    <a href="https://instagram.com/" target="_blank" class="social-btn-expand instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                        <span class="social-username">@moady_insta</span>
+                    </a>
+
+                    <a href="https://discord.com/" target="_blank" class="social-btn-expand discord">
+                        <i class="fa-brands fa-discord"></i>
+                        <span class="social-username">Moady Server</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            <div class="glass-panel" id="mainPanel">
+
+                <div class="header-content">
+                    <h1 id="pageTitle">اكتشف أسهل طريقة للتحميل</h1>
+                    <p id="pageSubtitle">ضع الرابط هنا وسنتكفل بالباقي، بدون علامات مائية وبأعلى جودة.</p>
+                </div>
+
+                <div class="search-section">
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link link-icon"></i>
+                        <input type="url" id="urlInput" placeholder="أدخل الرابط هنا (يوتيوب، تيك توك، سناب شات...)"
+                            autocomplete="off">
+                    </div>
+                    <button id="fetchBtn" class="btn primary-btn">
+                        <span>بحث</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+
+                <div id="errorMessage" class="error-toast hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <div id="loader" class="loader-container hidden">
+                    <div class="modern-spinner"></div>
+                </div>
+
+                <div id="resultCard" class="result-card hidden">
+                    <div class="thumb-box">
+                        <img id="videoThumb" src="" alt="Thumbnail">
+                        <div class="overlay-grad"></div>
+                        <span class="duration-badge" id="videoDuration"></span>
+                    </div>
+                    <div class="info-box">
+                        <h3 id="videoTitle"></h3>
+                        <div class="action-buttons" id="actionButtons">
+                            <!-- الأزرار تتغير ديناميكياً -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="downloadLoader" class="loader-container hidden">
+                    <div class="modern-spinner downloading"></div>
+                    <p class="loader-text">جاري معالجة وتجهيز الملف للتحميل...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
