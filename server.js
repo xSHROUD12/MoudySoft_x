@@ -33,7 +33,6 @@ app.get('/api/info', async (req, res) => {
             noWarnings: true,
             noCheckCertificates: true,
             preferFreeFormats: true,
-            youtubeSkipDashManifest: true,
             geoBypass: true,
             // Timeout after 30 seconds
             socketTimeout: 30
