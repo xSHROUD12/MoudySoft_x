@@ -10,37 +10,23 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// يقرأ من مجلد public إذا وجد، أو من المجلد الرئيسي مباشرة (للمرونة في الرفع)
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Endpoint for Discord Profile
-app.get('/api/discord-user/:id', async (req, res) => {
-    try {
-        const response = await fetch(`https://discord-lookup-api.vercel.app/v1/user/${req.params.id}`);
-        if (!response.ok) throw new Error('User not found');
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Discord API Error:', error.message);
-        res.status(500).json({ error: 'Failed to fetch Discord profile' });
-    }
-});
-
-// Create downloads directory if not exists
+// Create downloads directory
 const downloadsDir = path.join(__dirname, 'downloads');
 if (!fs.existsSync(downloadsDir)) {
-    fs.mkdirSync(downloadsDir);
+    fs.mkdirSync(downloadsDir, { recursive: true });
 }
 
 // Endpoint 1: Get Video Info
 app.get('/api/info', async (req, res) => {
     const { url } = req.query;
-    if (!url) {
-        return res.status(400).json({ error: 'الرجاء إدخال رابط صحيح.' });
-    }
+    if (!url) return res.status(400).json({ error: 'الرابط مطلوب.' });
 
-    console.log(`[INFO] Fetching metadata for: ${url}`);
+    console.log(`[LOG] Fetching info for: ${url}`);
+
     try {
         const info = await youtubedl(url, {
             dumpJson: true,
@@ -49,9 +35,12 @@ app.get('/api/info', async (req, res) => {
             preferFreeFormats: true,
             youtubeSkipDashManifest: true,
             geoBypass: true,
+            // Timeout after 30 seconds
+            socketTimeout: 30
         });
 
-        console.log(`[SUCCESS] Metadata fetched for: ${info.title}`);
+        console.log(`[LOG] Successfully fetched: ${info.title}`);
+
         res.json({
             title: info.title || 'فيديو بدون عنوان',
             thumbnail: info.thumbnail || 'https://via.placeholder.com/300x200?text=No+Thumbnail',
@@ -59,88 +48,83 @@ app.get('/api/info', async (req, res) => {
             url: url
         });
     } catch (error) {
-        console.error('[ERROR] Metadata fetch failed:', error.message);
-        res.status(500).json({ error: 'لم نتمكن من جلب بيانات الفيديو. تأكد من أن الرابط صحيح أو مدعوم.' });
+        console.error('[SERVER ERROR] Info Fetch:', error.message);
+        // Return a more descriptive error if possible
+        let errorMsg = 'لم نتمكن من جلب بيانات الفيديو.';
+        if (error.message.includes('IncompleteYouTubePublicID')) errorMsg = 'الرابط غير مكتمل أو غير صحيح.';
+        if (error.message.includes('403')) errorMsg = 'تم رفض الطلب من قبل الموقع المصدر.';
+
+        res.status(500).json({ error: errorMsg, details: error.message });
     }
 });
 
 // Endpoint 2: Download Video/Audio
 app.get('/api/download', async (req, res) => {
     const { url, type } = req.query;
+    if (!url) return res.status(400).send('الرابط مطلوب.');
 
-    if (!url) {
-        return res.status(400).send('الرابط مطلوب.');
-    }
-
-    const uniqueId = Date.now().toString() + Math.floor(Math.random() * 1000);
+    const uniqueId = Date.now().toString();
     const outputTemplate = path.join(downloadsDir, `${uniqueId}.%(ext)s`);
 
+    console.log(`[LOG] Starting download: ${url} (${type})`);
+
     try {
-        console.log(`[INFO] Starting download for: ${url} (Type: ${type})`);
+        // Step 1: Get metadata first to get correct extension and title
         const info = await youtubedl(url, { dumpJson: true, noWarnings: true });
-        // Clean title for safe filename
         const safeTitle = (info.title || 'MoadyDownload').replace(/[^\w\s\u0600-\u06FF-]/gi, '').trim();
 
-        let formatOptions = {};
-        let expectedFileExt = '';
-        let contentType = '';
-
-        if (type === 'audio') {
-            formatOptions = {
-                extractAudio: true,
-                audioFormat: 'mp3',
-                audioQuality: 0,
-            };
-            expectedFileExt = 'mp3';
-            contentType = 'audio/mpeg';
-        } else {
-            formatOptions = {
-                format: 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best',
-                mergeOutputFormat: 'mp4',
-            };
-            expectedFileExt = 'mp4';
-            contentType = 'video/mp4';
-        }
-
-        const options = {
-            ...formatOptions,
+        let options = {
             output: outputTemplate,
             noWarnings: true,
             noCheckCertificates: true,
             preferFreeFormats: true,
-            youtubeSkipDashManifest: true,
             geoBypass: true,
         };
 
+        let expectedFileExt = '';
+        let contentType = '';
+
+        if (type === 'audio') {
+            options.extractAudio = true;
+            options.audioFormat = 'mp3';
+            options.audioQuality = 0;
+            expectedFileExt = 'mp3';
+            contentType = 'audio/mpeg';
+        } else {
+            options.format = 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best';
+            options.mergeOutputFormat = 'mp4';
+            expectedFileExt = 'mp4';
+            contentType = 'video/mp4';
+        }
+
+        // Step 2: Execute actual download
         await youtubedl(url, options);
 
         const downloadedFile = path.join(downloadsDir, `${uniqueId}.${expectedFileExt}`);
-        console.log(`[SUCCESS] Download completed: ${downloadedFile}`);
 
         if (fs.existsSync(downloadedFile)) {
+            console.log(`[LOG] File ready: ${downloadedFile}`);
             const finalFilename = `${safeTitle}.${expectedFileExt}`;
+
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(finalFilename)}"`);
             res.setHeader('Content-Type', contentType);
 
             res.download(downloadedFile, finalFilename, (err) => {
-                if (err) {
-                    console.error('Error sending file to user:', err);
-                }
-                // Delete the file after it's been sent to save space
-                fs.unlink(downloadedFile, (unlinkErr) => {
-                    if (unlinkErr) console.error('Error deleting file:', unlinkErr);
+                // Clean up after send
+                fs.unlink(downloadedFile, (uErr) => {
+                    if (uErr) console.error('[SERVER ERROR] Unlink failed:', uErr);
                 });
             });
         } else {
-            res.status(500).send('فشل النظام في إنشاء الملف المطلوب.');
+            throw new Error('فشل النظام في إيجاد الملف بعد تحميله.');
         }
 
     } catch (error) {
-        console.error('Download execution error:', error.message);
-        res.status(500).send('حدث خطأ أثناء تحميل ومعالجة الرابط.');
+        console.error('[SERVER ERROR] Download failed:', error.message);
+        res.status(500).send(`حدث خطأ أثناء التحميل: ${error.message}`);
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running beautifully on http://localhost:${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
