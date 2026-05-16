@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Endpoint for Discord Profile (Keep for reference/local use)
+// Endpoint for Discord Profile
 app.get('/api/discord-user/:id', async (req, res) => {
     try {
         const response = await fetch(`https://discord-lookup-api.vercel.app/v1/user/${req.params.id}`);
@@ -40,13 +40,18 @@ app.get('/api/info', async (req, res) => {
         return res.status(400).json({ error: 'الرجاء إدخال رابط صحيح.' });
     }
 
+    console.log(`[INFO] Fetching metadata for: ${url}`);
     try {
         const info = await youtubedl(url, {
             dumpJson: true,
             noWarnings: true,
-            noCheckCertificates: true
+            noCheckCertificates: true,
+            preferFreeFormats: true,
+            youtubeSkipDashManifest: true,
+            geoBypass: true,
         });
 
+        console.log(`[SUCCESS] Metadata fetched for: ${info.title}`);
         res.json({
             title: info.title || 'فيديو بدون عنوان',
             thumbnail: info.thumbnail || 'https://via.placeholder.com/300x200?text=No+Thumbnail',
@@ -54,7 +59,7 @@ app.get('/api/info', async (req, res) => {
             url: url
         });
     } catch (error) {
-        console.error('Error fetching info:', error.message);
+        console.error('[ERROR] Metadata fetch failed:', error.message);
         res.status(500).json({ error: 'لم نتمكن من جلب بيانات الفيديو. تأكد من أن الرابط صحيح أو مدعوم.' });
     }
 });
@@ -71,6 +76,7 @@ app.get('/api/download', async (req, res) => {
     const outputTemplate = path.join(downloadsDir, `${uniqueId}.%(ext)s`);
 
     try {
+        console.log(`[INFO] Starting download for: ${url} (Type: ${type})`);
         const info = await youtubedl(url, { dumpJson: true, noWarnings: true });
         // Clean title for safe filename
         const safeTitle = (info.title || 'MoadyDownload').replace(/[^\w\s\u0600-\u06FF-]/gi, '').trim();
@@ -80,7 +86,6 @@ app.get('/api/download', async (req, res) => {
         let contentType = '';
 
         if (type === 'audio') {
-            // Audio extraction setup
             formatOptions = {
                 extractAudio: true,
                 audioFormat: 'mp3',
@@ -89,7 +94,6 @@ app.get('/api/download', async (req, res) => {
             expectedFileExt = 'mp3';
             contentType = 'audio/mpeg';
         } else {
-            // Video download setup (Max 1080p)
             formatOptions = {
                 format: 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best',
                 mergeOutputFormat: 'mp4',
@@ -102,12 +106,16 @@ app.get('/api/download', async (req, res) => {
             ...formatOptions,
             output: outputTemplate,
             noWarnings: true,
-            noCheckCertificates: true
+            noCheckCertificates: true,
+            preferFreeFormats: true,
+            youtubeSkipDashManifest: true,
+            geoBypass: true,
         };
 
         await youtubedl(url, options);
 
         const downloadedFile = path.join(downloadsDir, `${uniqueId}.${expectedFileExt}`);
+        console.log(`[SUCCESS] Download completed: ${downloadedFile}`);
 
         if (fs.existsSync(downloadedFile)) {
             const finalFilename = `${safeTitle}.${expectedFileExt}`;
@@ -136,4 +144,3 @@ app.get('/api/download', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running beautifully on http://localhost:${PORT}`);
 });
-
