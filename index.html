@@ -25,13 +25,7 @@
         <div class="laser l3"></div>
         <div class="laser l4"></div>
         <div class="laser l5"></div>
-        <div class="laser l6"></div>
-        <div class="laser l7"></div>
-        <div class="laser l8"></div>
-        <div class="laser l9"></div>
-        <div class="laser l10"></div>
 
-        <!-- نظام البخار (Steam System) -->
         <div class="steam-container">
             <div class="steam s1"></div>
             <div class="steam s2"></div>
@@ -43,7 +37,7 @@
             <div class="steam s8"></div>
         </div>
 
-        <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width:0;height:0;position:absolute;">
             <filter id="steam-filter">
                 <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="1" />
                 <feDisplacementMap in="SourceGraphic" scale="30" />
@@ -52,11 +46,7 @@
     </div>
 
     <div class="app-layout">
-
-        <!-- القائمة الجانبية (على الشمال) -->
         <aside class="sidebar">
-
-            <!-- الجزء العلوي: اللوجو والقائمة الرئيسية -->
             <div class="sidebar-top">
                 <div class="sidebar-brand discord-profile" id="discordProfile">
                     <div class="profile-info">
@@ -76,7 +66,6 @@
                 </nav>
             </div>
 
-            <!-- الجزء الأوسط: باقي القوائم (في المنتصف تماماً) -->
             <nav class="sidebar-nav center-nav">
                 <a href="#" class="nav-item" data-view="video">
                     <i class="fa-solid fa-film"></i>
@@ -88,14 +77,12 @@
                 </a>
             </nav>
 
-            <!-- الجزء السفلي: أزرار التواصل بشكل عمودي مع أنيميشن التمدد -->
             <div class="sidebar-footer">
                 <div class="social-links-vertical">
                     <a href="https://instagram.com/" target="_blank" class="social-btn-expand instagram">
                         <i class="fa-brands fa-instagram"></i>
                         <span class="social-username">@moady_insta</span>
                     </a>
-
                     <a href="https://discord.com/" target="_blank" class="social-btn-expand discord">
                         <i class="fa-brands fa-discord"></i>
                         <span class="social-username">Moady Server</span>
@@ -104,36 +91,55 @@
             </div>
         </aside>
 
-        <!-- المحتوى الرئيسي -->
         <main class="main-content">
             <div class="glass-panel view-visible" id="mainPanel">
 
-                <div class="header-content">
-                    <h1 id="pageTitle">اكتشف أسهل طريقة للتحميل</h1>
-                    <p id="pageSubtitle">ضع الرابط هنا وسنتكفل بالباقي، بدون علامات مائية وبأعلى جودة.</p>
-                </div>
-
-                <div class="search-section">
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-link link-icon"></i>
-                        <input type="url" id="urlInput" placeholder="أدخل الرابط هنا (يوتيوب، تيك توك، سناب شات...)"
-                            autocomplete="off">
+                <!-- واجهة الملف الشخصي (Guns.lol Style) -->
+                <div id="homeView" class="view-content">
+                    <div class="profile-header">
+                        <div class="main-avatar">
+                            <img src="https://cdn.discordapp.com/embed/avatars/0.png" id="homeAvatar" alt="Profile">
+                            <div class="status-dot"></div>
+                        </div>
+                        <h1 class="glow-text">SHROUD</h1>
+                        <p class="role-badge">Developer & Designer</p>
                     </div>
-                    <button id="fetchBtn" class="btn primary-btn">
-                        <span>بحث</span>
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </button>
+                    <div class="bio-section">
+                        <p>مرحباً بك في عالمي الخاص! أنا مطور برمجيات شغوف بكل ما هو جديد في عالم التقنية.</p>
+                    </div>
+                    <div class="social-badges">
+                        <a href="#" class="badge discord"><i class="fa-brands fa-discord"></i> Discord</a>
+                        <a href="#" class="badge instagram"><i class="fa-brands fa-instagram"></i> Instagram</a>
+                        <a href="#" class="badge github"><i class="fa-brands fa-github"></i> GitHub</a>
+                    </div>
                 </div>
 
+                <!-- واجهة أداة التحميل -->
+                <div id="downloaderView" class="view-content hidden">
+                    <div class="header-content">
+                        <h1 id="pageTitle">تحميل الفيديوهات بأعلى جودة</h1>
+                        <p id="pageSubtitle">ضع الرابط هنا وسنتكفل بالباقي، بدون علامات مائية وبأعلى جودة.</p>
+                    </div>
+                    <div class="search-section">
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-link link-icon"></i>
+                            <input type="url" id="urlInput" placeholder="أدخل الرابط هنا..." autocomplete="off">
+                        </div>
+                        <button id="fetchBtn" class="btn primary-btn">
+                            <span>بحث</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- الرسائل واللوادر المشتركة -->
                 <div id="errorMessage" class="error-toast hidden">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <span id="errorText"></span>
                 </div>
-
                 <div id="loader" class="loader-container hidden">
                     <div class="modern-spinner"></div>
                 </div>
-
                 <div id="resultCard" class="result-card hidden">
                     <div class="thumb-box">
                         <img id="videoThumb" src="" alt="Thumbnail">
@@ -142,15 +148,12 @@
                     </div>
                     <div class="info-box">
                         <h3 id="videoTitle"></h3>
-                        <div class="action-buttons" id="actionButtons">
-                            <!-- الأزرار تتغير ديناميكياً -->
-                        </div>
+                        <div class="action-buttons" id="actionButtons"></div>
                     </div>
                 </div>
-
                 <div id="downloadLoader" class="loader-container hidden">
                     <div class="modern-spinner downloading"></div>
-                    <p class="loader-text">جاري معالجة وتجهيز الملف للتحميل...</p>
+                    <p class="loader-text">جاري المعالجة والتحميل...</p>
                 </div>
             </div>
         </main>

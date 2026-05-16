@@ -45,17 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const newView = item.getAttribute('data-view');
             if (newView === currentView) return;
 
-            // Start transition
+            // 1. Start Blur & Fade out
             mainPanel.classList.add('view-transition');
             mainPanel.classList.remove('view-visible');
 
             setTimeout(() => {
+                // 2. Change Active Nav
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
 
                 currentView = newView;
-
-                // Switch Content
+                
+                // 3. Switch View Content
                 if (currentView === 'home') {
                     homeView.classList.remove('hidden');
                     downloaderView.classList.add('hidden');
@@ -67,10 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 resetUI();
 
-                // End transition
+                // 4. End Blur & Fade in
                 mainPanel.classList.remove('view-transition');
                 mainPanel.classList.add('view-visible');
-            }, 300);
+            }, 400); // 400ms is enough for the fade
         });
     });
 
@@ -164,8 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const name = data.global_name || data.username;
                 document.getElementById('dcGlobalName').textContent = name;
                 document.getElementById('dcUsername').textContent = '@' + data.username;
-
-                // Update home page too
                 const homeAvatar = document.getElementById('homeAvatar');
                 if (data.avatar && data.avatar.link) {
                     const avatarUrl = data.avatar.link + '?size=256';
