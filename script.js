@@ -156,6 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
+                // If the server sent details, show them in console for the developer
+                if (data.details) console.error('Full Server Error:', data.details);
                 throw new Error(data.error || 'خطأ في معالجة الرابط');
             }
 
@@ -169,7 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resultCard.classList.remove('hidden');
 
         } catch (error) {
-            showError(error.message);
+            console.error('Fetch Error:', error);
+            showError(error.message || 'حدث خطأ غير متوقع أثناء الاتصال بالسيرفر.');
         }
     });
 
