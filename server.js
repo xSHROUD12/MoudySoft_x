@@ -9,8 +9,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-// Serves static files from the 'public' directory
+
+// يقرأ من مجلد public إذا وجد، أو من المجلد الرئيسي مباشرة (للمرونة في الرفع)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // Endpoint for Discord Profile (Keep for reference/local use)
 app.get('/api/discord-user/:id', async (req, res) => {
