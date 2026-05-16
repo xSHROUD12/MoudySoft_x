@@ -554,6 +554,20 @@ body {
     max-width: 750px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(14, 5, 185, 0.1);
     animation: panelEntry 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* أنيميشن التنقل بين القوائم */
+.view-transition {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+    filter: blur(5px);
+}
+
+.view-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
 }
 
 @keyframes panelEntry {
