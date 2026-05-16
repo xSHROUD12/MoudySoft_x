@@ -14,6 +14,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
+// تحديد مسار محرك التحميل (يدوي أو تلقائي)
+const localYtDlp = path.join(__dirname, 'yt-dlp');
+const ytDlpPath = fs.existsSync(localYtDlp) ? localYtDlp : null;
+if (ytDlpPath) {
+    console.log('[LOG] Using local yt-dlp binary');
+}
+
 // Create downloads directory
 const downloadsDir = path.join(__dirname, 'downloads');
 if (!fs.existsSync(downloadsDir)) {
@@ -34,6 +41,7 @@ app.get('/api/info', async (req, res) => {
             noCheckCertificates: true,
             preferFreeFormats: true,
             geoBypass: true,
+            binaryPath: ytDlpPath,
             // Timeout after 30 seconds
             socketTimeout: 30
         });
@@ -69,15 +77,20 @@ app.get('/api/download', async (req, res) => {
 
     try {
         // Step 1: Get metadata first to get correct extension and title
-        const info = await youtubedl(url, { dumpJson: true, noWarnings: true });
+        const info = await youtubedl(url, {
+            dumpJson: true,
+            noWarnings: true,
+            binaryPath: ytDlpPath
+        });
         const safeTitle = (info.title || 'MoadyDownload').replace(/[^\w\s\u0600-\u06FF-]/gi, '').trim();
 
-        let options = {
+        const options = {
             output: outputTemplate,
             noWarnings: true,
             noCheckCertificates: true,
             preferFreeFormats: true,
             geoBypass: true,
+            binaryPath: ytDlpPath
         };
 
         let expectedFileExt = '';
