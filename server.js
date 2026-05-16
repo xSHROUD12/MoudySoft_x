@@ -16,9 +16,12 @@ app.use(express.static(__dirname));
 
 // تحديد مسار محرك التحميل (يدوي أو تلقائي)
 const localYtDlp = path.join(__dirname, 'yt-dlp');
-const ytDlpPath = fs.existsSync(localYtDlp) ? localYtDlp : null;
+let ytDlpPath = fs.existsSync(localYtDlp) ? localYtDlp : null;
+
 if (ytDlpPath) {
-    console.log('[LOG] Using local yt-dlp binary');
+    console.log('[LOG] ✅ Success: Manual yt-dlp binary found at:', ytDlpPath);
+} else {
+    console.error('[LOG] ❌ Warning: Manual yt-dlp binary NOT found. Trying default package...');
 }
 
 // Create downloads directory
@@ -56,12 +59,10 @@ app.get('/api/info', async (req, res) => {
         });
     } catch (error) {
         console.error('[SERVER ERROR] Info Fetch:', error.message);
-        // Return a more descriptive error if possible
-        let errorMsg = 'لم نتمكن من جلب بيانات الفيديو.';
-        if (error.message.includes('IncompleteYouTubePublicID')) errorMsg = 'الرابط غير مكتمل أو غير صحيح.';
-        if (error.message.includes('403')) errorMsg = 'تم رفض الطلب من قبل الموقع المصدر.';
-
-        res.status(500).json({ error: errorMsg, details: error.message });
+        res.status(500).json({
+            error: 'لم نتمكن من جلب بيانات الفيديو. السيرفر قد يحتاج لتحديث المحرك.',
+            details: error.message
+        });
     }
 });
 
