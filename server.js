@@ -3,6 +3,7 @@ const cors = require('cors');
 const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,27 +11,35 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// تحديد مسار محرك التحميل (يدوي أو تلقائي)
+// --- نظام الإنقاذ التلقائي للمحرك ---
 const localYtDlp = path.join(__dirname, 'yt-dlp');
 let ytDlpPath = fs.existsSync(localYtDlp) ? localYtDlp : null;
 
-if (ytDlpPath) {
-    console.log('[LOG] ✅ Success: Manual yt-dlp binary found at:', ytDlpPath);
-} else {
-    console.error('[LOG] ❌ Warning: Manual yt-dlp binary NOT found. Trying default package...');
+async function ensureYtDlp() {
+    if (!ytDlpPath) {
+        console.log('[RESCUE] yt-dlp not found. Attempting automatic download...');
+        try {
+            // تحميل النسخة المناسبة لـ Linux (سيرفرات Render)
+            execSync(`curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o "${localYtDlp}"`);
+            execSync(`chmod +x "${localYtDlp}"`);
+            ytDlpPath = localYtDlp;
+            console.log('[RESCUE] ✅ yt-dlp downloaded and ready!');
+        } catch (err) {
+            console.error('[RESCUE] ❌ Failed to download yt-dlp:', err.message);
+        }
+    }
 }
+ensureYtDlp();
+// ---------------------------------
 
-// Create downloads directory
 const downloadsDir = path.join(__dirname, 'downloads');
 if (!fs.existsSync(downloadsDir)) {
     fs.mkdirSync(downloadsDir, { recursive: true });
 }
 
-// Endpoint 1: Get Video Info
 app.get('/api/info', async (req, res) => {
     const { url } = req.query;
     if (!url) return res.status(400).json({ error: 'الرابط مطلوب.' });
@@ -45,11 +54,8 @@ app.get('/api/info', async (req, res) => {
             preferFreeFormats: true,
             geoBypass: true,
             binaryPath: ytDlpPath,
-            // Timeout after 30 seconds
             socketTimeout: 30
         });
-
-        console.log(`[LOG] Successfully fetched: ${info.title}`);
 
         res.json({
             title: info.title || 'فيديو بدون عنوان',
@@ -60,13 +66,12 @@ app.get('/api/info', async (req, res) => {
     } catch (error) {
         console.error('[SERVER ERROR] Info Fetch:', error.message);
         res.status(500).json({
-            error: 'لم نتمكن من جلب بيانات الفيديو. السيرفر قد يحتاج لتحديث المحرك.',
+            error: 'السيرفر يواجه مشكلة في المحرك. يرجى الانتظار دقيقة والمحاولة مجدداً.',
             details: error.message
         });
     }
 });
 
-// Endpoint 2: Download Video/Audio
 app.get('/api/download', async (req, res) => {
     const { url, type } = req.query;
     if (!url) return res.status(400).send('الرابط مطلوب.');
@@ -74,10 +79,7 @@ app.get('/api/download', async (req, res) => {
     const uniqueId = Date.now().toString();
     const outputTemplate = path.join(downloadsDir, `${uniqueId}.%(ext)s`);
 
-    console.log(`[LOG] Starting download: ${url} (${type})`);
-
     try {
-        // Step 1: Get metadata first to get correct extension and title
         const info = await youtubedl(url, {
             dumpJson: true,
             noWarnings: true,
@@ -110,31 +112,23 @@ app.get('/api/download', async (req, res) => {
             contentType = 'video/mp4';
         }
 
-        // Step 2: Execute actual download
         await youtubedl(url, options);
 
         const downloadedFile = path.join(downloadsDir, `${uniqueId}.${expectedFileExt}`);
 
         if (fs.existsSync(downloadedFile)) {
-            console.log(`[LOG] File ready: ${downloadedFile}`);
             const finalFilename = `${safeTitle}.${expectedFileExt}`;
-
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(finalFilename)}"`);
             res.setHeader('Content-Type', contentType);
-
             res.download(downloadedFile, finalFilename, (err) => {
-                // Clean up after send
-                fs.unlink(downloadedFile, (uErr) => {
-                    if (uErr) console.error('[SERVER ERROR] Unlink failed:', uErr);
-                });
+                fs.unlink(downloadedFile, (uErr) => { });
             });
         } else {
-            throw new Error('فشل النظام في إيجاد الملف بعد تحميله.');
+            throw new Error('الملف غير موجود بعد التحميل.');
         }
 
     } catch (error) {
-        console.error('[SERVER ERROR] Download failed:', error.message);
-        res.status(500).send(`حدث خطأ أثناء التحميل: ${error.message}`);
+        res.status(500).send(`خطأ في التحميل: ${error.message}`);
     }
 });
 
