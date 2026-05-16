@@ -18,9 +18,37 @@
         <div class="triangle t1"></div>
         <div class="triangle t2"></div>
         <div class="triangle t3"></div>
+        <div class="triangle t4"></div>
+        <div class="triangle t5"></div>
         <div class="laser l1"></div>
         <div class="laser l2"></div>
         <div class="laser l3"></div>
+        <div class="laser l4"></div>
+        <div class="laser l5"></div>
+        <div class="laser l6"></div>
+        <div class="laser l7"></div>
+        <div class="laser l8"></div>
+        <div class="laser l9"></div>
+        <div class="laser l10"></div>
+
+        <!-- نظام البخار (Steam System) -->
+        <div class="steam-container">
+            <div class="steam s1"></div>
+            <div class="steam s2"></div>
+            <div class="steam s3"></div>
+            <div class="steam s4"></div>
+            <div class="steam s5"></div>
+            <div class="steam s6"></div>
+            <div class="steam s7"></div>
+            <div class="steam s8"></div>
+        </div>
+
+        <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+            <filter id="steam-filter">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="1" />
+                <feDisplacementMap in="SourceGraphic" scale="30" />
+            </filter>
+        </svg>
     </div>
 
     <div class="app-layout">
@@ -63,7 +91,6 @@
             <!-- الجزء السفلي: أزرار التواصل بشكل عمودي مع أنيميشن التمدد -->
             <div class="sidebar-footer">
                 <div class="social-links-vertical">
-                    <!-- يمكنك تغيير الرابط في href لروابطك الحقيقية -->
                     <a href="https://instagram.com/" target="_blank" class="social-btn-expand instagram">
                         <i class="fa-brands fa-instagram"></i>
                         <span class="social-username">@moady_insta</span>
