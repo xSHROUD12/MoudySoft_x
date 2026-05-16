@@ -43,17 +43,32 @@ document.addEventListener('DOMContentLoaded', () => {
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            // Remove active class
-            navItems.forEach(nav => nav.classList.remove('active'));
-            // Add active class
-            item.classList.add('active');
+            const newView = item.getAttribute('data-view');
+            if (newView === currentView) return;
 
-            // Change view
-            currentView = item.getAttribute('data-view');
-            updateViewUI();
+            const mainPanel = document.getElementById('mainPanel');
+            
+            // Start transition
+            mainPanel.classList.add('view-transition');
+            mainPanel.classList.remove('view-visible');
 
-            // Reset state
-            resetUI();
+            setTimeout(() => {
+                // Remove active class
+                navItems.forEach(nav => nav.classList.remove('active'));
+                // Add active class
+                item.classList.add('active');
+
+                // Change view
+                currentView = newView;
+                updateViewUI();
+
+                // Reset state
+                resetUI();
+
+                // End transition
+                mainPanel.classList.remove('view-transition');
+                mainPanel.classList.add('view-visible');
+            }, 300);
         });
     });
 
